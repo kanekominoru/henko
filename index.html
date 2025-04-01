@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>契約内容変更、問い合わせ</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" rossorigin="anonymous">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/themes/base/jquery-ui.min.css">
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <link href="https://cdn.jsdelivr.net/npm/pickerjs@1.2.1/dist/picker.min.css" rel="stylesheet">
+  </head>
+  <body>
+    <form action="https://script.google.com/macros/s/AKfycbyLJibLUxEfNuwgN69IoFUGI5eEdr9Ne-QfyBihyUChf2nHV9drBFWswyTLl-obWDtCGA/exec" id="cc-form" method="post" class="w-75 mx-auto" target="sendMessage">
+      <div>
+        <div class="kintoneplugin-row">
+
+          <input type="button" value="保険種目を追加" class="add pluralBtn" name="add0">
+          <input type="button" value="保険種目を削除" class="del pluralBtn" name="del0">
+
+          <p class="mt-3">希望する内容をお教えください</p>
+          <div>
+              <select class="form-control w-100 mt-1" name="kibonaiyo0">
+                  <option>契約内容変更</option>
+                  <option>契約内容への問い合わせ</option>
+              </select>
+          </div>
+          <p class="mt-3">上記の保険種目をお教えください</p>
+          <div>
+              <select class="form-control w-100 mt-1" name="syumoku0">
+                  <option selected>自動車</option>
+                  <option>火災</option>
+                  <option>生命保険</option>
+                  <option>その他</option>
+              </select>
+          </div>
+          <p class="mt-3">※上記で生命保険を選んだ方は生命保険の種目を選択してください</p>
+          <div>
+              <select class="form-control w-100 mt-1" name="seiho0">
+                  <option>-------</option>
+                  <option>医療保険</option>
+                  <option>がん保険</option>
+                  <option>生命保険</option>
+              </select>
+          </div>
+          <p class="mt-3">変更又は問合せを行いたい内容を教えてください</p>
+          <div class="input-group mb-3 fSub">
+            <textarea class="form-control" id="inquiry0" rows="5"></textarea>
+          </div>
+          <p class="mt-3">連絡方法</p>
+          <div>
+              <select class="form-control w-100 mt-1" name="renraku0">
+                  <option>電話連絡を希望したい</option>
+                  <option>このままチャットでの対応を希望</option>
+              </select>
+          </div>
+          <div>
+            <label for="tel">※上記で電話番号希望した方はこちらに電話番号を記入してください</label>
+            <input type="tel" class="form-control" name="tel0">
+          </div>
+          <div>
+            <label for="tel">※上記で電話番号希望した方は連絡希望日時を教えてください<br>※弊社営業時間は平日8：30～17：30となります</label>
+            <input type="text" id="datepicker" placeholder="連絡希望日時を選択してください" class="form-control js-super-picker w-100 mt-1" name="kibonichizi0" required>
+          </div>
+        </div>
+      </div>
+      <input type="text" id="num" name="num" style="display: none;">
+      <button id="sendMessageTrigger" type="button" class="btn btn-primary">送信</button>
+    </form>
+
+    <iframe name="sendMessage"  style="display: none;"></iframe>
+
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" crossorigin="anonymous"></script>
+    <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2.1/sdk.js"></script>
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/pickerjs@1.2.1/dist/picker.min.js"></script>
+
+    <!-- Added -->
+    <script>
+      const $form = $('#cc-form');
+      const $trigger = $('#sendMessageTrigger');
+      const $iframe = $('iframe[name="sendMessage"]');
+      const liffId = "2007083053-YNDKlL8v";
+      let userId = "";
+      let rowLen = 0;
+      const datepicker = document.getElementById('datepicker');
+      const picker = new Picker(datepicker, {
+          container: '.js-super-picker-container',
+          format: 'YYYY-MM-DD HH:mm:00',
+          text: {
+              title: '連絡希望日時をお選びください。',
+              cancel: 'やめる',
+              confirm: '確認',
+          },
+          translate(type, text) {
+            const suffixes = {
+                                year: '年',
+                                month: '月',
+                                day: '日',
+                                hour: '時',
+                                minute: '分',
+                            };
+
+            return Number(text) + suffixes[type];
+          },
+      });
+      liff.init({liffId: liffId})
+        .catch((err) => {
+          console.log(err);
+      });
+
+      liff.ready.then(() => {
+        if (!liff.isLoggedIn()) {
+          liff.login();
+        }
+        const idToken = liff.getDecodedIDToken();
+        userId = idToken.sub;
+        $('form').append(`<input type="hidden" name="userId" value="${userId}">`);
+      });
+
+      $(document).on("click", ".add", function() {
+        let target = $(this).parent();
+        if (target.parent().children().length < 4) {
+          $(this).parent().clone(true).insertAfter($(this).parent());
+        }
+        changeName();
+        let nameId =Number(this.name.replace(/[^0-9]/g, ''))+1;
+        console.log(nameId);
+        const dp = document.querySelector(`input[name="kibonichizi${nameId}"]`);
+        const pr = new Picker(dp, {
+            container: '.js-super-picker-container',
+            format: 'YYYY-MM-DD HH:mm:00',
+            text: {
+                title: '連絡希望日時をお選びください。',
+                cancel: 'やめる',
+                confirm: '確認',
+            },
+            translate(type, text) {
+              const suffixes = {
+                                  year: '年',
+                                  month: '月',
+                                  day: '日',
+                                  hour: '時',
+                                  minute: '分',
+                              };
+
+              return Number(text) + suffixes[type];
+            },
+        });
+      });
+
+      $(document).on("click", ".del", function() {
+        let target = $(this).parent();
+        if (target.parent().children().length > 1) {
+          target.remove();
+        }
+        changeName();
+      });
+
+      $trigger.click(function() {
+        
+        changeName();
+
+        $form.submit();
+
+        return false;
+      });
+
+      $form.submit(function() {
+          let insertHtml=`
+            <!-- loading -->
+            <div id="loading"">
+                <div class="cv-spinner">
+                    <span class="spinner"></span>
+                    <p>送信しています</p>
+                </div>
+            </div>
+            <!-- loading -->
+            `
+          let insertCSS=`
+            <style>
+                #loading{
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    z-index: 999;
+                    width: 100%;
+                    height:100%;
+                    background: rgba(0,0,0,0.6);
+                }
+                #loading .cv-spinner {
+                    height: 100%;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                }
+                #loading .spinner {
+                    width: 40px;
+                    height: 40px;
+                    border: 4px #ddd solid;
+                    border-top: 4px #999 solid;
+                    border-radius: 50%;
+                    animation: sp-anime 0.8s infinite linear;
+                }
+                #loading p {
+                    line-height: 40px;
+                    margin: 0 0 0 8px;
+                    text-align: center;
+                    color: #ddd
+                }
+                @keyframes sp-anime {
+                    0% { transform: rotate(0deg); }
+                    100% { transform: rotate(359deg); }
+                }
+                #loading.is-hide{
+                    display:none;
+                }
+            </style>
+            `
+          document.getElementsByTagName('head')[0].insertAdjacentHTML('beforeend', insertCSS);
+          document.getElementsByTagName('body')[0].insertAdjacentHTML('afterbegin', insertHtml);
+          $iframe.unbind().bind('load', async function() {
+            const tblText = [
+              {
+                "type": "text",
+                "text": "回答いただきありがとうございます。\n確認を行い、折り返し担当から連絡を行わせて頂きます。"
+              } 
+            ];
+            await sendText(tblText);
+          });
+      });
+
+      const changeName = () => {
+        rowLen = document.querySelectorAll(".kintoneplugin-row").length;
+        document.querySelector("#num").value = rowLen;
+        for  (let i = 0; i < rowLen; i++) {
+          $('input[name*="add"]').eq(i).attr('name', 'add' + String(i));
+          $('input[name*="del"]').eq(i).attr('name', 'del' + String(i));
+          $('select[name*="kibonaiyo"]').eq(i).attr('name', 'kibonaiyo' + String(i));
+          $('select[name*="syumoku"]').eq(i).attr('name', 'syumoku' + String(i));
+          $('select[name*="seiho"]').eq(i).attr('name', 'seiho' + String(i));
+          $('textarea[name*="inquiry"]').eq(i).attr('name', 'inquiry' + String(i));
+          $('select[name*="renraku"]').eq(i).attr('name', 'renraku' + String(i));
+          $('input[name*="tel"]').eq(i).attr('name', 'tel' + String(i));
+          $('input[name*="kibonichizi"]').eq(i).attr('name', 'kibonichizi' + String(i));
+          $('div[id*="data"]').eq(i).attr('id', 'data' + String(i));
+        }
+      }
+
+      const sendText = (tblText) => {
+          liff.sendMessages(tblText)
+          .then(() => {
+            liff.closeWindow();
+          })
+          .catch(function (error) {
+            window.alert('Failed to send message ' + error);
+          });
+      }
+    </script>
+
+  </body>
+</html>
